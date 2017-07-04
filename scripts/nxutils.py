@@ -363,8 +363,13 @@ class Repository(object):
     @staticmethod
     def get_current_version():
         """Return branch or tag version of current Git workspace."""
-        t = check_output("git describe --all").split("/")
-        return t[-1]
+
+        name = check_output('git name-rev --name-only --no-undefined HEAD').strip()
+
+        if re.search('.*~\d+$', name):
+            raise Exception('detached head, cannot guess GIT branch or tag name')
+
+        return name;
 
     def mvn(self, commands, skip_tests=False, skip_ITs=False,
             profiles=None, dryrun=False):
